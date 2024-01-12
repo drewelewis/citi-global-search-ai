@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  yaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: yaeger
+    ports:
+      - "9411:9411"
+      - "4317:4317"
+      - "4318:4318"
+      - "5778:5778"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "14250:14250"
+      - "14268:14268"
+      - "14269:14269"
+      - "16686:16686"
+
+    environment:
+      - JAEGER_AGENT_HOST=0.0.0.0
+      - COLLECTOR_OTLP_ENABLED=true
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - LOG_LEVEL=debug
+    networks:
+      - api-network
+
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: redis-master
+    command: bash -c "redis-server /etc/redis-stack.conf --appendonly yes --requirepass password"
+    ports:
+      - "6379:6379"
+    networks:
+      - api-network
+    volumes:
+      - ./data:/data
+
+  redis-slave:
+    image: redis/redis-stack-server:latest
+    container_name: redis-slave
+    ports:
+      - "6380:6379"
+    command: redis-server /etc/redis-stack.conf --replicaof master 6379
+    depends_on:
+      - redis
+    networks:
+      - api-network
+
+networks:
+  api-network:
+    driver: bridge
