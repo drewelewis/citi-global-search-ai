@@ -66,11 +66,11 @@ def search(query: str) -> None:
     azure_endpoint = os.getenv("_OPENAI_API_BASE")
     
 )
-    
+    print (cleandata)
     response = client.chat.completions.create(
     model="gpt-35-turbo",
             messages=[
-            { "role": "system", "content": "You are a friendly and polite assistant who has vast information on Citigroup.Your pourpose is to help customers find important information on the company." },
+            { "role": "system", "content": "You are a friendly and polite assistant who has vast information on Citigroup. Your purpose is to help customers find important information on the company. Only use information that you find from the documents that are given.  If you can't find relevant information, just say so." },
             { "role": "user", "content": "Based on the sources below, answer the following question: " + query +
                 "\nHere is some data from a few sources:\n" + cleandata
                 }
