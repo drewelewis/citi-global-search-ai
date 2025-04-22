@@ -2,7 +2,7 @@ import os
 import openai
 from app.config import config
 
-class azure_openai_client:
+class client:
     def __init__(self, api_version: str):
         
         # Check if the environment variables are set
@@ -16,7 +16,6 @@ class azure_openai_client:
 
         if api_version is None:
             raise ValueError("Please include the API version in the constructor.") 
-
 
         self.client = openai.AzureOpenAI(
                 api_key=azure_api_key,  

@@ -5,10 +5,6 @@ from redis.commands.search.field import VectorField, TextField
 from redis.commands.search.query import Query
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.chdir('..')))
-sys.path.append(PROJECT_ROOT)
-
-
 import openai
 import glob
 import numpy as np
@@ -43,12 +39,12 @@ def create_index():
 def insert_data():
     # Create Index First, if not already created
     create_index()
-
-    folder_path = PROJECT_ROOT+'\content\global_search\output'
+    content_folder = os.path.join(config.PROJECT_ROOT, 'content')
+    files = content_folder+'\global_search\output\*.json'
     conn = redis.Redis(host=redis_host, port=redis_port, password=redis_password, encoding='utf-8', decode_responses=True)
  
     p = conn.pipeline(transaction=False)
-    for filepath in glob.glob(os.path.join(folder_path, '*.json')):
+    for filepath in glob.glob(files):
         content_to_index=[]
         filename=os.path.basename(filepath).split('/')[-1]
         print(filename)

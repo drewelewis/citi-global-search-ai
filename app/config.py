@@ -18,6 +18,7 @@ class Config(BaseSettings):
     REDIS_HOST: Optional[str] = None
     REDIS_PORT: Optional[str] = None
     REDIS_PASSWORD: Optional[str] = None
+    PROJECT_ROOT: Optional[str] = None
 
 config=Config()
 

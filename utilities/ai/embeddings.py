@@ -9,7 +9,7 @@ import tiktoken
 import ai.azure_openai_client as azure_openai_client
 
 def create(text: str) -> str:
-    client = azure_openai_client(api_version="2024-08-01-preview")
+    client = azure_openai_client.client("2024-08-01-preview")
     response = client.embedding(input=text, model="text-embedding-ada-002")
     embedding = response.data
 
