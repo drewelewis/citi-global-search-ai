@@ -1,45 +1,12 @@
 import openai
 from app.config import config
-
-from pydantic import BaseModel
-
-class ai_response(BaseModel):
-    text: str
-    errors: str
+from ai.azure_openai_client import azure_openai_client
+from models.model import ai_response
 
 def completion(messages):
-    
-    # Check if the environment variables are set
-    azure_endpoint = config.OPENAI_API_BASE
-    if azure_endpoint is None:
-        raise ValueError("Please set the environment variable '_OPENAI_API_BASE' to your Azure OpenAI endpoint.")
-
-    azure_api_key = config.OPENAI_API_KEY
-    if azure_api_key is None:
-        raise ValueError("Please set the environment variable '_OPENAI_API_KEY' to your Azure OpenAI API key.")
-
-    api_version = config.OPENAI_API_VERSION
-    if api_version is None:
-        raise ValueError("Please set the environment variable '_OPENAI_API_VERSION' to your Azure OpenAI API version.")
-
-    model_deployment_name = config.OPENAI_API_MODEL_DEPLOYMENT_NAME
-    if model_deployment_name is None:
-        raise ValueError("Please set the environment variable '_OPENAI_API_MODEL_DEPLOYMENT_NAME' to your Azure OpenAI deployment name.")
-
-    client = openai.AzureOpenAI(
-            api_key=azure_api_key,  
-            api_version=api_version,
-            azure_endpoint=azure_endpoint
-    )
-
-    response = client.beta.chat.completions.parse(  
-        model=model_deployment_name,  
-        messages=messages,
-        temperature=1,
-        logprobs=True,
-        response_format=ai_response
-    )  
-    return response
+    client = azure_openai_client(api_version="2024-08-01-preview")
+    completion = client.completion("gpt-4o-2", messages, ai_response, max_tokens=1000, temperature=0.7)
+    return completion
 
 if __name__ == "__main__":
     pass

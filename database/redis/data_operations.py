@@ -1,33 +1,49 @@
-
-import redis
-import openai
 import os
 import sys
+import redis
+from redis.commands.search.field import VectorField, TextField
+from redis.commands.search.query import Query
+from redis.commands.search.indexDefinition import IndexDefinition, IndexType
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.chdir('..')))
+sys.path.append(PROJECT_ROOT)
+
+
+import openai
 import glob
 import numpy as np
 import time
 import json
+from app.config import config
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-sys.path.append(PROJECT_ROOT)
-import databases.redis.utils as database_utils
 import utilities.ai.embeddings as embeddings
 import utilities.ai.tokens as tokens
 
-# OpenAI API key
-openai.api_key = os.getenv('_OPENAI_API_KEY')
-openai.api_base = os.getenv('_OPENAI_API_BASE')
-openai.api_type = os.getenv('_OPENAI_API_TYPE')
-openai.api_version = os.getenv('_OPENAI_API_VERSION')
-
 # Redis connection details
-redis_host = os.getenv('_REDIS_HOST')
-redis_port = os.getenv('_REDIS_PORT')
-redis_password = os.getenv('_REDIS_PASSWORD')
+redis_host = config.REDIS_HOST
+redis_port = config.REDIS_PORT
+redis_password = config.REDIS_PASSWORD
     
+def create_index(): 
+    # Connect to the Redis server
+    conn = redis.Redis(host=redis_host, port=redis_port, password=redis_password, encoding='utf-8', decode_responses=True)
+    
+    SCHEMA = [
+        TextField("url"),
+        TextField("text"),
+        VectorField("text_embedding", "HNSW", {"TYPE": "FLOAT32", "DIM": 1536, "DISTANCE_METRIC": "COSINE"}),
+    ]
+    
+    # Create the index
+    try:
+        conn.ft("articles").create_index(fields=SCHEMA, definition=IndexDefinition(prefix=["citi:"], index_type=IndexType.HASH))
+    except Exception as e:
+        print("Index already exists")
 
-def read_files():
-    database_utils.create_index()
+def insert_data():
+    # Create Index First, if not already created
+    create_index()
+
     folder_path = PROJECT_ROOT+'\content\global_search\output'
     conn = redis.Redis(host=redis_host, port=redis_port, password=redis_password, encoding='utf-8', decode_responses=True)
  
@@ -53,7 +69,7 @@ def read_files():
             #save file (text)
             
             embedding= embeddings.create(text)
-            token_count=embeddings.token_count(text)
+            token_count=embeddings.token_count(text,"gpt-4o")
             text_vector=embeddings.vectorize(embedding)
             
             # Create a new hash with url and embedding
@@ -70,4 +86,3 @@ def read_files():
 
 
 #init()
-read_files()

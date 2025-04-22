@@ -4,6 +4,7 @@ import redis
 from openai import AzureOpenAI
 import os
 import sys
+from app.config import config
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 sys.path.append(PROJECT_ROOT)
@@ -12,9 +13,9 @@ import utilities.ai.tokens as tokens
  
 
 # Redis connection details
-redis_host = os.getenv('_REDIS_HOST')
-redis_port = os.getenv('_REDIS_PORT')
-redis_password = os.getenv('_REDIS_PASSWORD')
+redis_host = config.REDIS_HOST
+redis_port = config.REDIS_PORT
+redis_password = config.REDIS_PASSWORD
 
 
 def search(query: str) -> None:

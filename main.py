@@ -4,20 +4,27 @@ import os
 import glob
 import numpy as np
 import time
-import databases.redis.search as search
+import database.redis.search as search
 import app.config as config
 import ai.chat_completion as chat_completion
+
+import database.redis.data_operations as data_operations
 
 messages = []
 
 system_message = """
-You are a friendly AI assistant who will generate sql queries for the user.
+You are a friendly AI assistant.
 """.strip()
 
 messages.append({"role": "system", "content": system_message})
+
+def init_redis_data():
+    data_operations.insert_data()
  
 def main() -> None:
-    
+    init_redis_data()
+
+
     if len(messages)<3:
         print("\n How can I help you? \n")
          
