@@ -1,1 +1,1 @@
-.env/Scripts/activate.bat
+.venv/Scripts/activate.bat
