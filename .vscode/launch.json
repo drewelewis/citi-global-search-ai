@@ -5,6 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+        "type": "java",
+        "name": "Attach",
+        "request": "attach",
+        "hostName": "localhost",
+        "port": "<debug port of the debuggee>"
+    },
+    {
       "name": "Python Debugger: Current File",
       "type": "debugpy",
       "request": "launch",
@@ -12,12 +19,20 @@
       "console": "integratedTerminal"
     },
     {
-      "name": "Python Debugger: Main with Arguments",
+      "name": "Debugger: Main",
       "type": "debugpy",
       "request": "launch",
       "program": "main.py",
-      "console": "integratedTerminal",
-      "args": "${command:pickArgs}"
+      "console": "integratedTerminal"
+    }
+    ,
+    {
+      "name": "Debugger: Main RAG",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "main_rag.py",
+      "console": "integratedTerminal"
+
     }
   ]
 }
