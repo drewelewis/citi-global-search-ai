@@ -13,7 +13,7 @@ def create(text: str) -> str:
     response = client.embedding(input=text, model="text-embedding-ada-002")
     embedding = response.data
 
-    time.sleep(5) # sleep for 1 second to avoid rate limit with emedding API    
+    time.sleep(3) # sleep to avoid rate limit with emedding API    
     return embedding
 
 def vectorize(embedding:str) -> str:
