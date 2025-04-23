@@ -80,9 +80,14 @@ def search(query: str) -> None:
     register_vector(conn)
     try:
         cur = conn.cursor()        
-        cur.execute('SELECT text FROM articles ORDER BY text_embedding <-> %s LIMIT 5', (np.array(embedding),))
+        cur.execute('SELECT url, title, text FROM articles ORDER BY text_embedding <-> %s LIMIT 5', (np.array(embedding),))
         results = cur.fetchall() 
-        print(results)
+        for i, column in enumerate(results):
+            url=column[0]
+            title=column[1]
+            text=column[2]
+            print(f"\t{i+1}. {url} (Title: {title})")
+            print("")
         conn.commit()
     except Exception as e:
         print(e)
