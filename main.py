@@ -1,11 +1,4 @@
-import redis
-import openai
-import os
-import glob
-import numpy as np
-import time
 import database.redis.search as search
-import app.config as config
 import ai.azure_openai_client as azure_openai_client
 from models.model import ai_response
 
@@ -20,9 +13,9 @@ You are a friendly AI assistant.
 messages.append({"role": "system", "content": system_message})
  
 def main() -> None:
+    # Seed the vector database
     # data_operations.insert_data()
-
-
+    
     if len(messages)<3:
         print("\n How can I help you? \n")
          
@@ -35,11 +28,9 @@ def main() -> None:
 
     if message:
         print(f"\n{message.text}\n")
-
         messages.append({"role": "assistant", "content": message.text})
     
     main()
-
 
 if __name__ == "__main__":
     main()
