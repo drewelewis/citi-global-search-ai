@@ -6,6 +6,8 @@ import database.postgres.search as postgres_search
 
 import database.redis.data_operations as redis_data_operations
 import database.postgres.data_operations as postgres_data_operations
+
+from models.model import article
 messages = []
 
 system_message = """
@@ -24,8 +26,17 @@ def main() -> None:
          
     query= input("> ")
     
-    search_results = postgres_search.search(query, token_limit=2000)
-    messages.append({"role": "user", "content": "Based on the sources below, answer the following question: " + query + "\nHere is some data from a few sources:\n" + search_results})
+    search_results : list[article] = postgres_data_operations.search(query, token_limit=2000) 
+    article_texts=[]
+
+    for i, a in enumerate(search_results):
+        article_texts.append(a.text)
+        article_texts.append("---")
+        print(f"\t{i+1}. {a.title} (Tokens: {a.text_token_count })")
+    
+    delimiter = '\n'
+    article_texts = delimiter.join(article_texts)
+    messages.append({"role": "user", "content": "Based on the sources below, answer the following question: " + query + "\nHere is some data from a few sources:\n" + article_texts})
 
     client = azure_openai_client.client("2024-08-01-preview")
     completion = client.completion("gpt-4o-2", messages, ai_response, max_tokens=1000, temperature=0.7)

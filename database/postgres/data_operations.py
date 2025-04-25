@@ -14,6 +14,8 @@ from pgvector.psycopg2 import register_vector
 import utilities.ai.embeddings as embeddings
 import utilities.ai.tokens as tokens
 
+from models.model import article
+
 # Redis connection details
 postgres_connection_string = config.POSTGRES_CONNECTION_STRING
 
@@ -73,28 +75,40 @@ def insert_article(url, title, text, text_embedding, text_token_count) -> None:
         cur.close()
         conn.close()
 
-def search(query: str) -> None: 
+def search(query: str,token_limit=2000) -> list[article]:
+    total_tokens=0 
+    articles=[]
     embedding= embeddings.create(query)
     embedding=embedding[0].embedding
     conn = psycopg2.connect(postgres_connection_string)
     register_vector(conn)
     try:
         cur = conn.cursor()        
-        cur.execute('SELECT url, title, text FROM articles ORDER BY text_embedding <-> %s LIMIT 5', (np.array(embedding),))
+        cur.execute('SELECT url, title, text, text_embedding, text_token_count FROM articles ORDER BY text_embedding <-> %s LIMIT 5', (np.array(embedding),))
         results = cur.fetchall() 
         for i, column in enumerate(results):
             url=column[0]
             title=column[1]
             text=column[2]
-            print(f"\t{i+1}. {url} (Title: {title})")
-            print("")
-        conn.commit()
+            text_embedding =column[3]
+            text_token_count=column[4]
+            token_count=int(text_token_count)
+            total_tokens = total_tokens+token_count
+            
+            # only add article if total tokens is less than token limit
+            if (total_tokens < token_limit): 
+                articles.append(article(url=url, title=title, text=text, text_embedding=text_embedding, text_token_count=text_token_count))
+            else:
+                # print("Token limit exceeded")
+                break
+
     except Exception as e:
         print(e)
         # raise
     finally:
         cur.close()
         conn.close()
+    return articles
 
 def insert_data():
     # Create Index First, if not already created

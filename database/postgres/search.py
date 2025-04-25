@@ -46,19 +46,6 @@ def search(query: str, token_limit=2000) -> None:
     cleandata=('\n---\n {0}'.format(single_str))
 
     return cleandata
-
-def search_vectors(query_vector, client, top_k=5):
-    
-    base_query = "*=>[KNN 5 @text_embedding $vector AS vector_score]"
-    query = Query(base_query).return_fields("url", "title", "text", "vector_score","text_token_count").sort_by("vector_score").dialect(2)    
- 
-    try:
-        results = client.ft("articles").search(query, query_params={"vector": query_vector})
-    except Exception as e:
-        print("Error calling Redis search: ", e)
-        return None
- 
-    return results
  
  
 
